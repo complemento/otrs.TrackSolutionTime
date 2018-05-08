@@ -32,12 +32,6 @@ sub new {
     my $Self = {};
     bless( $Self, $Type );
 
-    $Self->{DynamicFieldObject}         = $Kernel::OM->Get('Kernel::System::DynamicField');
-    $Self->{LogObject}                  = $Kernel::OM->Get('Kernel::System::Log');
-    $Self->{TimeObject}                 = $Kernel::OM->Get('Kernel::System::Time');
-    $Self->{TicketObject}               = $Kernel::OM->Get('Kernel::System::Ticket');
-    $Self->{DynamicFieldBackendObject}  = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
-
     # 0=off; 1=on;
     $Self->{Debug} = $Param{Debug} || 0;
 
@@ -52,6 +46,7 @@ sub Run {
     my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
     my $UserObject = $Kernel::OM->Get('Kernel::System::User');
     my $DynamicFieldBackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+    my $DynamicFieldValueObject = $Kernel::OM->Get('Kernel::System::DynamicFieldValue');
     my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
     my $Overwrite = "Yes";    
 
@@ -62,26 +57,208 @@ sub Run {
     # get ticket data
     my %Ticket = $TicketObject->TicketGet(
         %Param,
-        DynamicFields => 1,
+        DynamicFields => 0,
+        Extended => 1,
     );
 
-	if(defined $Ticket{SolutionTime}){
+    my $DynamicField = $DynamicFieldObject->DynamicFieldGet(
+       Name => 'SolutionTime'
+    );
+
+    my $DynamicFieldIsCalc = $DynamicFieldObject->DynamicFieldGet(
+       Name => 'IsSolutionTimeSLAStoppedCalculated'
+    );
+
+    my $DynamicFieldTotalTime = $DynamicFieldObject->DynamicFieldGet(
+       Name => 'TotalTime'
+    );
+
+	if(defined $Ticket{SLA}){
 		
 		#Preenchimento de Solution Time
+        if($Ticket{StateType} eq 'closed'){
+            my %Escalation = $TicketObject->TicketEscalationPreferences(
+                Ticket => \%Ticket,
+                UserID => 1,
+            );
 
-		my $DynamicFieldSolutionTime = $DynamicFieldObject->DynamicFieldGet(
-			Name => "SolutionTime",
-		);
-		
-		my $Success = $DynamicFieldBackendObject->ValueSet(
-			DynamicFieldConfig => $DynamicFieldSolutionTime,      # complete config of the DynamicField
-			 ObjectID           => $Ticket{TicketID},                # ID of the current object that the field
-											   # must be linked to, e. g. TicketID
-			 Value              => $Ticket{SolutionTime}/60  ,                   # Value to store, depends on backend type
-			 UserID             => 1,
-		);
+            my $Success = $DynamicFieldValueObject->ValueSet(
+                FieldID  => $DynamicField->{ID},
+                ObjectID => $Ticket{TicketID},
+                Value    => [
+                    {
+                            ValueText          => $Ticket{SolutionDiffInMin}
+                    },
+                ],
+                UserID   => 1,
+            );
+
+            $Success = $DynamicFieldValueObject->ValueSet(
+                FieldID  => $DynamicFieldTotalTime->{ID},
+                ObjectID => $Ticket{TicketID},
+                Value    => [
+                    {
+                            ValueText          => $Ticket{SolutionInMin}
+                    },
+                ],
+                UserID   => 1,
+            );
+
+            my $percent = ($Ticket{SolutionInMin} * 100) / $Escalation{SolutionTime};
+        }
+        else{
+            my $notIsSLAStopped = ($TimeObject->TimeStamp2SystemTime(
+                String => $Ticket{SolutionTimeDestinationDate},
+            ) != 1767139200);
+
+            if($notIsSLAStopped){
+                my $Success = $DynamicFieldValueObject->ValueSet(
+                    FieldID  => $DynamicField->{ID},
+                    ObjectID => $Ticket{TicketID},
+                    Value    => [
+                        {
+                                ValueText          => $Ticket{SolutionTimeWorkingTime}/60
+                        },
+                    ],
+                    UserID   => 1,
+                );
+
+                my %Escalation = $TicketObject->TicketEscalationPreferences(
+                    Ticket => \%Ticket,
+                    UserID => 1,
+                );
+
+                my $WorkingTime = $TimeObject->WorkingTime(
+                    StartTime => $TimeObject->TimeStamp2SystemTime(
+                        String => $Ticket{Created},
+                    ),
+                    StopTime  => $TimeObject->SystemTime(),
+                    Calendar  => $Escalation{Calendar},
+                );
+
+                $DynamicFieldValueObject->ValueSet(
+                    FieldID  => $DynamicFieldTotalTime->{ID},
+                    ObjectID => $Ticket{TicketID},
+                    Value    => [
+                        {
+                                ValueText          => $WorkingTime/60
+                        },
+                    ],
+                    UserID   => 1,
+                );
+
+                my $percent = (($WorkingTime/60) * 100) / $Escalation{SolutionTime};
+
+                $DynamicFieldValueObject->ValueSet(
+                    FieldID  => $DynamicFieldIsCalc->{ID},
+                    ObjectID => $Ticket{TicketID},
+                    Value    => [
+                        {
+                                ValueInt          => 0
+                        },
+                    ],
+                    UserID   => 1,
+                );
+            }
+            else{
+                my $ValueIsCalc = $DynamicFieldValueObject->ValueGet(
+                    FieldID            => $DynamicFieldIsCalc->{ID},
+                    ObjectID           => $Ticket{TicketID},               
+                );
+
+                my $isCalculated = 0;
+
+                if(defined $ValueIsCalc->[0]->{ValueInt}){
+                    $isCalculated = $ValueIsCalc->[0]->{ValueInt};
+                }
+
+                if($isCalculated == 0){
+                    my $PendSumTime = $TicketObject->GetTotalNonEscalationRelevantBusinessTime(
+                        TicketID => $Ticket{TicketID},
+                    );
+                    my %Escalation = $TicketObject->TicketEscalationPreferences(
+                        Ticket => \%Ticket,
+                        UserID => 1,
+                    );
+                    my $DestinationTime = $TimeObject->DestinationTime(
+                        StartTime => $TimeObject->TimeStamp2SystemTime(
+                            String => $Ticket{Created},
+                        ),
+                        # 
+                        # Time     => $Escalation{SolutionTime} * 60,
+                        Time     => $Escalation{SolutionTime} * 60 + $PendSumTime,
+                        # 
+                        Calendar => $Escalation{Calendar},
+                    );
+                    my $SolutionTime = 0;
+                    if($TimeObject->SystemTime() < $DestinationTime){
+                        $SolutionTime = $TimeObject->WorkingTime(
+                            StartTime => $TimeObject->SystemTime(),
+                            StopTime  => $DestinationTime,
+                            Calendar  => $Escalation{Calendar},
+                        );
+                    }
+                    else{
+                        $SolutionTime = $TimeObject->WorkingTime(
+                            StartTime => $DestinationTime,
+                            StopTime  => $TimeObject->SystemTime(),
+                            Calendar  => $Escalation{Calendar},
+                        )*-1;
+                    }
+
+                    my $Success = $DynamicFieldValueObject->ValueSet(
+                        FieldID  => $DynamicField->{ID},
+                        ObjectID => $Ticket{TicketID},
+                        Value    => [
+                            {
+                                    ValueText          => $SolutionTime/60
+                            },
+                        ],
+                        UserID   => 1,
+                    );
+
+                    my $WorkingTime = $TimeObject->WorkingTime(
+                        StartTime => $TimeObject->TimeStamp2SystemTime(
+                            String => $Ticket{Created},
+                        ),
+                        StopTime  => $TimeObject->SystemTime(),
+                        Calendar  => $Escalation{Calendar},
+                    );
+
+                    $DynamicFieldValueObject->ValueSet(
+                        FieldID  => $DynamicFieldTotalTime->{ID},
+                        ObjectID => $Ticket{TicketID},
+                        Value    => [
+                            {
+                                    ValueText          => $WorkingTime/60
+                            },
+                        ],
+                        UserID   => 1,
+                    );
+
+                    my $percent = (($WorkingTime/60) * 100) / $Escalation{SolutionTime};
+
+                    $DynamicFieldValueObject->ValueSet(
+                        FieldID  => $DynamicFieldIsCalc->{ID},
+                        ObjectID => $Ticket{TicketID},
+                        Value    => [
+                            {
+                                    ValueInt          => 1
+                            },
+                        ],
+                        UserID   => 1,
+                    );
+                }
+            }
+        }
 	}
 	
+}
+
+sub ConvertPercentualSLAScale{
+    my ( $Self, %Param ) = @_;
+    
+    return $Param{Value};
 }
 
 1;
