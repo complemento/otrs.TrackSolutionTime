@@ -12,5 +12,6 @@
     <Filelist>
         <File Permission="644" Location="Custom/TrackSolutionTime.sopm"></File>
         <File Permission="644" Location="Kernel/System/GenericAgent/SetSolutionTimeField.pm"></File>
+        <File Permission="644" Location="var/packagesetup/TrackSolutionTime.pm"></File>
     </Filelist>
 </otrs_package>

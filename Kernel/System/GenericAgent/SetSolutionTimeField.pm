@@ -53,17 +53,7 @@ sub Run {
     my $UserObject = $Kernel::OM->Get('Kernel::System::User');
     my $DynamicFieldBackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
     my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
-    my $Overwrite = "Yes";
-    
-    # check needed param
-    if ( !$Param{New}->{'SolutionTime'} ) {
-        $Self->{LogObject}->Log(
-            Priority => 'error',
-            Message  => 'Need SolutionTime param for GenericAgent module!',
-        );
-        return;
-    }
-    
+    my $Overwrite = "Yes";    
 
     #INFORMAÇÔES DO CHAMADO
 
@@ -80,7 +70,7 @@ sub Run {
 		#Preenchimento de Solution Time
 
 		my $DynamicFieldSolutionTime = $DynamicFieldObject->DynamicFieldGet(
-			Name => $Param{New}->{SolutionTime},
+			Name => "SolutionTime",
 		);
 		
 		my $Success = $DynamicFieldBackendObject->ValueSet(
