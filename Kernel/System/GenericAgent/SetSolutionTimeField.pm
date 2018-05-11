@@ -38,8 +38,6 @@ sub new {
     return $Self;
 }
 
-
-
 sub Run {
     my ( $Self, %Param ) = @_;
     
@@ -73,10 +71,18 @@ sub Run {
        Name => 'TotalTime'
     );
 
+    my $DynamicFieldPercentualScaleSLA = $DynamicFieldObject->DynamicFieldGet(
+		Name => "PercentualScaleSLA",
+	);
+
 	if(defined $Ticket{SLA}){
 		
 		#Preenchimento de Solution Time
         if($Ticket{StateType} eq 'closed'){
+            my $PendSumTime = $TicketObject->GetTotalNonEscalationRelevantBusinessTime(
+                TicketID => $Ticket{TicketID},
+            )||0;
+
             my %Escalation = $TicketObject->TicketEscalationPreferences(
                 Ticket => \%Ticket,
                 UserID => 1,
@@ -98,18 +104,36 @@ sub Run {
                 ObjectID => $Ticket{TicketID},
                 Value    => [
                     {
-                            ValueText          => $Ticket{SolutionInMin}
+                            ValueText          => $Ticket{SolutionInMin}-$PendSumTime
                     },
                 ],
                 UserID   => 1,
             );
 
-            my $percent = ($Ticket{SolutionInMin} * 100) / $Escalation{SolutionTime};
+            my $percent = 0;
+            if($Escalation{SolutionTime} != 0){
+                $percent = ($Ticket{SolutionInMin} * 100) / $Escalation{SolutionTime};
+            }
+
+            $Success = $DynamicFieldValueObject->ValueSet(
+                FieldID  => $DynamicFieldPercentualScaleSLA->{ID},
+                ObjectID => $Ticket{TicketID},
+                Value    => [
+                    {
+                            ValueText          => $Self->ConvertPercentualSLAScale(Value=>$percent)
+                    },
+                ],
+                UserID   => 1,
+            );
         }
         else{
             my $notIsSLAStopped = ($TimeObject->TimeStamp2SystemTime(
                 String => $Ticket{SolutionTimeDestinationDate},
             ) != 1767139200);
+
+            my $PendSumTime = $TicketObject->GetTotalNonEscalationRelevantBusinessTime(
+                TicketID => $Ticket{TicketID},
+            )||0;
 
             if($notIsSLAStopped){
                 my $Success = $DynamicFieldValueObject->ValueSet(
@@ -134,7 +158,7 @@ sub Run {
                     ),
                     StopTime  => $TimeObject->SystemTime(),
                     Calendar  => $Escalation{Calendar},
-                );
+                )-$PendSumTime;
 
                 $DynamicFieldValueObject->ValueSet(
                     FieldID  => $DynamicFieldTotalTime->{ID},
@@ -147,7 +171,21 @@ sub Run {
                     UserID   => 1,
                 );
 
-                my $percent = (($WorkingTime/60) * 100) / $Escalation{SolutionTime};
+                my $percent = 0;
+                if($Escalation{SolutionTime} != 0){
+                    $percent = (($WorkingTime/60) * 100) / $Escalation{SolutionTime};
+                }
+
+                $Success = $DynamicFieldValueObject->ValueSet(
+                    FieldID  => $DynamicFieldPercentualScaleSLA->{ID},
+                    ObjectID => $Ticket{TicketID},
+                    Value    => [
+                        {
+                                ValueText          => $Self->ConvertPercentualSLAScale(Value=>$percent)
+                        },
+                    ],
+                    UserID   => 1,
+                );
 
                 $DynamicFieldValueObject->ValueSet(
                     FieldID  => $DynamicFieldIsCalc->{ID},
@@ -173,9 +211,6 @@ sub Run {
                 }
 
                 if($isCalculated == 0){
-                    my $PendSumTime = $TicketObject->GetTotalNonEscalationRelevantBusinessTime(
-                        TicketID => $Ticket{TicketID},
-                    );
                     my %Escalation = $TicketObject->TicketEscalationPreferences(
                         Ticket => \%Ticket,
                         UserID => 1,
@@ -223,7 +258,7 @@ sub Run {
                         ),
                         StopTime  => $TimeObject->SystemTime(),
                         Calendar  => $Escalation{Calendar},
-                    );
+                    )-$PendSumTime;
 
                     $DynamicFieldValueObject->ValueSet(
                         FieldID  => $DynamicFieldTotalTime->{ID},
@@ -236,7 +271,21 @@ sub Run {
                         UserID   => 1,
                     );
 
-                    my $percent = (($WorkingTime/60) * 100) / $Escalation{SolutionTime};
+                    my $percent = 0;
+                    if($Escalation{SolutionTime} != 0){
+                        $percent = (($WorkingTime/60) * 100) / $Escalation{SolutionTime};
+                    }
+
+                    $Success = $DynamicFieldValueObject->ValueSet(
+                        FieldID  => $DynamicFieldPercentualScaleSLA->{ID},
+                        ObjectID => $Ticket{TicketID},
+                        Value    => [
+                            {
+                                    ValueText          => $Self->ConvertPercentualSLAScale(Value=>$percent)
+                            },
+                        ],
+                        UserID   => 1,
+                    );
 
                     $DynamicFieldValueObject->ValueSet(
                         FieldID  => $DynamicFieldIsCalc->{ID},
@@ -257,8 +306,45 @@ sub Run {
 
 sub ConvertPercentualSLAScale{
     my ( $Self, %Param ) = @_;
+
+    my $DynamicFieldBackendObject  = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
+    my $DynamicFieldPercentualScaleSLA = $DynamicFieldObject->DynamicFieldGet(
+		Name => "PercentualScaleSLA",
+	);
+
+    my $PossibleValues = $DynamicFieldBackendObject->PossibleValuesGet(
+       DynamicFieldConfig => $DynamicFieldPercentualScaleSLA,
+    );
+
+    foreach my $key (keys %{$PossibleValues}){
+        my $indexOf = index($key,'-');
+        if($indexOf > -1){
+            my $min = substr $key, 0, $indexOf;
+            my $max = substr $key, $indexOf+1;
+
+            if($Param{Value} >= $min && $Param{Value} < $max){
+                return $key;
+            }
+        }
+        $indexOf = index($key,'>');
+        if($indexOf > -1){
+            my $number = substr $key, $indexOf+1;
+            if($Param{Value} > $number){
+                return $key;
+            }
+        }
+        $indexOf = index($key,'<');
+        if($indexOf > -1){
+            my $number = substr $key, $indexOf+1;
+            if($Param{Value} < $number){
+                return $key;
+            }
+        }
+    }
     
-    return $Param{Value};
+    return "";
 }
 
 1;
