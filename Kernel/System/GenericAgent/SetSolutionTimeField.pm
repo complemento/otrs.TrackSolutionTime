@@ -40,8 +40,6 @@ sub Run {
     my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
     my $Overwrite = "Yes";    
 
-    #INFORMAÇÔES DO CHAMADO
-
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
     # get ticket data
@@ -133,7 +131,7 @@ sub Run {
                     ObjectID => $Ticket{TicketID},
                     Value    => [
                         {
-                                ValueText          => $Ticket{SolutionTimeWorkingTime}/60
+                                ValueText          => int($Ticket{SolutionTimeWorkingTime}/60)
                         },
                     ],
                     UserID   => 1,
@@ -157,7 +155,7 @@ sub Run {
                     ObjectID => $Ticket{TicketID},
                     Value    => [
                         {
-                                ValueText          => $WorkingTime/60
+                                ValueText          => int($WorkingTime/60)
                         },
                     ],
                     UserID   => 1,
@@ -238,7 +236,7 @@ sub Run {
                         ObjectID => $Ticket{TicketID},
                         Value    => [
                             {
-                                    ValueText          => $SolutionTime/60
+                                    ValueText          => int($SolutionTime/60)
                             },
                         ],
                         UserID   => 1,
@@ -257,7 +255,7 @@ sub Run {
                         ObjectID => $Ticket{TicketID},
                         Value    => [
                             {
-                                    ValueText          => $WorkingTime/60
+                                    ValueText          => int($WorkingTime/60)
                             },
                         ],
                         UserID   => 1,
