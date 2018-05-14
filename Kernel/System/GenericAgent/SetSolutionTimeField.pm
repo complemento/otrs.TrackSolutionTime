@@ -15,15 +15,7 @@ our @ObjectDependencies = (
     'Kernel::System::Ticket',
     'Kernel::System::Time',
 );
-#Obrigatório:
-#Date - Nome do Campo Dinamico onde deve ser armazenado a data e hora (o campo dinamico deve ser do tipo DateTime)
 
-#Um dos dois abaixo obrigatórios, podendo inclusive ser os dois campos:
-#AgentLogin - Nome do campo dinâmico onde devemos armazenar o Login do usuário que executou a ação
-#AgentFullname - Concatenação do UserFirstname + " " + UserLastname do usuário que executou a ação
-
-#Opcional
-#Overwrite - "Yes" (Padrão) e "No". Caso marcado "No" o sistema verifica se o campo dinamico especificado no parametro "Date" já está preenchido. Se já estiver, a execução do módulo é interrompida.
 
 sub new {
     my ( $Type, %Param ) = @_;
