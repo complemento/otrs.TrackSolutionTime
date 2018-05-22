@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_package version="1.0">
     <Name>TrackSolutionTime</Name>
-    <Version>5.0.3</Version>
-    <Framework>5.0.x</Framework>
-    <PackageRequired Version="5.x.x">SlaStop</PackageRequired>
-    <Vendor>Complemento [Enterprise]</Vendor>
+    <Version>6.0.0</Version>
+    <Framework>6.0.x</Framework>
+    <PackageRequired Version="6.x.x">SlaStop</PackageRequired>
+    <Vendor>Ligero</Vendor>
     <URL>http://www.complemento.net.br/</URL>
     <License>GNU GENERAL PUBLIC LICENSE Version 2, June 1991</License>
     <Description Lang="en">Fills automatically dynamic fields with relevant information about ticket SLA.</Description>
@@ -13,8 +13,7 @@
     <Filelist>
         <File Permission="644" Location="Custom/TrackSolutionTime.sopm"></File>
         <File Permission="644" Location="Kernel/System/GenericAgent/SetSolutionTimeField.pm"></File>
-        <File Permission="644" Location="var/packagesetup/TrackSolutionTime.pm"></File>
-        <File GoogleDrive="1DYSNDM0oNBUx-VWRIkeXiR-rulLTOx9KL6iqAwa-0_8" Location="doc/pt_BR/TrackSolutionTime.pdf" Permission="644"></File>
+        <File Permission="644" Location="var/packagesetup/TrackSolutionTime.pm"></File>        
     </Filelist>
     <CodeInstall Type="post">
         my $CodeModule = 'var::packagesetup::' . $Param{Structure}-&gt;{Name}-&gt;{Content};
