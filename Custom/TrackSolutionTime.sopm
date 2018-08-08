@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_package version="1.0">
     <Name>TrackSolutionTime</Name>
-    <Version>5.0.3</Version>
+    <Version>5.0.4</Version>
     <Framework>5.0.x</Framework>
     <PackageRequired Version="5.x.x">SlaStop</PackageRequired>
     <Vendor>Complemento [Enterprise]</Vendor>

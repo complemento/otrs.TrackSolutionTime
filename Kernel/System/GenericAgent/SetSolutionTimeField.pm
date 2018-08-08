@@ -114,7 +114,7 @@ sub Run {
                 ObjectID => $Ticket{TicketID},
                 Value    => [
                     {
-                            ValueText          => $Ticket{SolutionInMin}-$PendSumTime
+                            ValueText          => $Escalation{SolutionTime}-$Ticket{SolutionDiffInMin}
                     },
                 ],
                 UserID   => 1,
@@ -124,7 +124,7 @@ sub Run {
             #with the time defined in SLA configuration
             my $percent = 0;
             if($Escalation{SolutionTime} != 0){
-                $percent = ($Ticket{SolutionInMin} * 100) / $Escalation{SolutionTime};
+                $percent = (($Escalation{SolutionTime}-$Ticket{SolutionDiffInMin}) * 100) / $Escalation{SolutionTime};
             }
 
             #Select the combo box PercentualScaleSLA value in relationship with
