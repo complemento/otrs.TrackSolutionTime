@@ -96,27 +96,19 @@ sub Run {
 
             #When the ticket is closed the SolutionTime value is got from
             #SolutionDiffInMin Extend Field from Ticket object.
-            my $Success = $DynamicFieldValueObject->ValueSet(
-                FieldID  => $DynamicField->{ID},
+            my $Success = $DynamicFieldBackendObject->ValueSet(
+                DynamicFieldConfig  => $DynamicField,
                 ObjectID => $Ticket{TicketID},
-                Value    => [
-                    {
-                            ValueText          => $Ticket{SolutionDiffInMin}
-                    },
-                ],
+                Value    => $Ticket{SolutionDiffInMin},
                 UserID   => 1,
             );
 
             #When the ticket is closed the TotalTime value is got from
             #SolutionInMin Extend Field from Ticket object subtracting the ticket stopped time
-            $Success = $DynamicFieldValueObject->ValueSet(
-                FieldID  => $DynamicFieldTotalTime->{ID},
+            $Success = $DynamicFieldBackendObject->ValueSet(
+                DynamicFieldConfig  => $DynamicFieldTotalTime,
                 ObjectID => $Ticket{TicketID},
-                Value    => [
-                    {
-                            ValueText          => $Escalation{SolutionTime}-$Ticket{SolutionDiffInMin}
-                    },
-                ],
+                Value    => $Escalation{SolutionTime}-$Ticket{SolutionDiffInMin},
                 UserID   => 1,
             );
 
@@ -129,14 +121,10 @@ sub Run {
 
             #Select the combo box PercentualScaleSLA value in relationship with
             #percentual
-            $Success = $DynamicFieldValueObject->ValueSet(
-                FieldID  => $DynamicFieldPercentualScaleSLA->{ID},
+            $Success = $DynamicFieldBackendObject->ValueSet(
+                DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
                 ObjectID => $Ticket{TicketID},
-                Value    => [
-                    {
-                            ValueText          => $Self->ConvertPercentualSLAScale(Value=>$percent)
-                    },
-                ],
+                Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
                 UserID   => 1,
             );
         }
@@ -155,14 +143,10 @@ sub Run {
             if($notIsSLAStopped){
                 #When the ticket is open and no SLA Stopped get the solution time from
                 #SolutionTimeWorkingTime Field
-                my $Success = $DynamicFieldValueObject->ValueSet(
-                    FieldID  => $DynamicField->{ID},
+                my $Success = $DynamicFieldBackendObject->ValueSet(
+                    DynamicFieldConfig  => $DynamicField,
                     ObjectID => $Ticket{TicketID},
-                    Value    => [
-                        {
-                                ValueText          => int($Ticket{SolutionTimeWorkingTime}/60)
-                        },
-                    ],
+                    Value    => int($Ticket{SolutionTimeWorkingTime}/60),
                     UserID   => 1,
                 );
 
@@ -183,14 +167,10 @@ sub Run {
                     Calendar  => $Escalation{Calendar},
                 )-$PendSumTime;
 
-                $DynamicFieldValueObject->ValueSet(
-                    FieldID  => $DynamicFieldTotalTime->{ID},
+                $DynamicFieldBackendObject->ValueSet(
+                    DynamicFieldConfig  => $DynamicFieldTotalTime,
                     ObjectID => $Ticket{TicketID},
-                    Value    => [
-                        {
-                                ValueText          => int($WorkingTime/60)
-                        },
-                    ],
+                    Value    => int($WorkingTime/60),
                     UserID   => 1,
                 );
 
@@ -203,27 +183,19 @@ sub Run {
 
                 #Select the combo box PercentualScaleSLA value in relationship with
                 #percentual
-                $Success = $DynamicFieldValueObject->ValueSet(
-                    FieldID  => $DynamicFieldPercentualScaleSLA->{ID},
+                $Success = $DynamicFieldBackendObject->ValueSet(
+                    DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
                     ObjectID => $Ticket{TicketID},
-                    Value    => [
-                        {
-                                ValueText          => $Self->ConvertPercentualSLAScale(Value=>$percent)
-                        },
-                    ],
+                    Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
                     UserID   => 1,
                 );
 
                 #When the ticket is oppened and no SLA Stopped, update the IsSolutionTimeSLAStoppedCalculated
                 #dynamic field to false (0)
-                $DynamicFieldValueObject->ValueSet(
-                    FieldID  => $DynamicFieldIsCalc->{ID},
+                $DynamicFieldBackendObject->ValueSet(
+                    DynamicFieldConfig  => $DynamicFieldIsCalc,
                     ObjectID => $Ticket{TicketID},
-                    Value    => [
-                        {
-                                ValueInt          => 0
-                        },
-                    ],
+                    Value    => 0,
                     UserID   => 1,
                 );
             }
@@ -284,14 +256,10 @@ sub Run {
                         )*-1;
                     }
 
-                    my $Success = $DynamicFieldValueObject->ValueSet(
-                        FieldID  => $DynamicField->{ID},
+                    my $Success = $DynamicFieldBackendObject->ValueSet(
+                        DynamicFieldConfig  => $DynamicField,
                         ObjectID => $Ticket{TicketID},
-                        Value    => [
-                            {
-                                    ValueText          => int($SolutionTime/60)
-                            },
-                        ],
+                        Value    => int($SolutionTime/60),
                         UserID   => 1,
                     );
 
@@ -306,14 +274,10 @@ sub Run {
                         Calendar  => $Escalation{Calendar},
                     )-$PendSumTime;
 
-                    $DynamicFieldValueObject->ValueSet(
-                        FieldID  => $DynamicFieldTotalTime->{ID},
+                    $DynamicFieldBackendObject->ValueSet(
+                        DynamicFieldConfig  => $DynamicFieldTotalTime,
                         ObjectID => $Ticket{TicketID},
-                        Value    => [
-                            {
-                                    ValueText          => int($WorkingTime/60)
-                            },
-                        ],
+                        Value    => int($WorkingTime/60),
                         UserID   => 1,
                     );
 
@@ -326,28 +290,20 @@ sub Run {
 
                     #Select the combo box PercentualScaleSLA value in relationship with
                     #percentual
-                    $Success = $DynamicFieldValueObject->ValueSet(
-                        FieldID  => $DynamicFieldPercentualScaleSLA->{ID},
+                    $Success = $DynamicFieldBackendObject->ValueSet(
+                        DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
                         ObjectID => $Ticket{TicketID},
-                        Value    => [
-                            {
-                                    ValueText          => $Self->ConvertPercentualSLAScale(Value=>$percent)
-                            },
-                        ],
+                        Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
                         UserID   => 1,
                     );
 
                     #When the ticket is SLA Stopped, update the IsSolutionTimeSLAStoppedCalculated
                     #dynamic field to true (1). This ensures that this calcule will be made just one
                     #time while this ticket is stopped 
-                    $DynamicFieldValueObject->ValueSet(
-                        FieldID  => $DynamicFieldIsCalc->{ID},
+                    $DynamicFieldBackendObject->ValueSet(
+                        DynamicFieldConfig  => $DynamicFieldIsCalc,
                         ObjectID => $Ticket{TicketID},
-                        Value    => [
-                            {
-                                    ValueInt          => 1
-                            },
-                        ],
+                        Value    => 1,
                         UserID   => 1,
                     );
                 }
