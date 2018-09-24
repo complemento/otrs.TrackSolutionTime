@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_package version="1.0">
     <Name>TrackSolutionTime</Name>
-    <Version>5.0.4</Version>
+    <Version>5.0.6</Version>
     <Framework>5.0.x</Framework>
     <PackageRequired Version="5.x.x">SlaStop</PackageRequired>
     <Vendor>Complemento [Enterprise]</Vendor>
@@ -12,6 +12,7 @@
     <IntroInstall Type="post" Lang="en" Title="Attention!">Try on a test system before uploading an production server.</IntroInstall>
     <Filelist>
         <File Permission="644" Location="Custom/TrackSolutionTime.sopm"></File>
+        <File Permission="644" Location="Kernel/System/Console/Command/Maint/TrackSolutionTime/TrackSolutionTimeRebuild.pm"></File>
         <File Permission="644" Location="Kernel/System/GenericAgent/SetSolutionTimeField.pm"></File>
         <File Permission="644" Location="var/packagesetup/TrackSolutionTime.pm"></File>
         <File GoogleDrive="1DYSNDM0oNBUx-VWRIkeXiR-rulLTOx9KL6iqAwa-0_8" Location="doc/pt_BR/TrackSolutionTime.pdf" Permission="644"></File>
