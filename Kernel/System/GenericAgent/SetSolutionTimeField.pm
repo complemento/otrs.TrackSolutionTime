@@ -56,6 +56,13 @@ sub Run {
        Name => 'SolutionTime'
     );
 
+    #Get Dynamic Field Configuration to TotalTime
+    #this dynamic field is used to receive the total time worked on the
+    #ticket in minutes of work time.
+    my $DynamicFieldTotalTime = $DynamicFieldObject->DynamicFieldGet(
+       Name => 'TotalTime'
+    );
+
     #Get Dynamic Field Configuration to IsSolutionTimeSLAStoppedCalculated
     #This dynamic field was created to control the calculation when the
     #ticket is SLA Paused
@@ -103,6 +110,15 @@ sub Run {
                 UserID   => 1,
             );
 
+            #When the ticket is closed the ResponseTime value is got from
+            #SolutionDiffInMin Extend Field from Ticket object.
+            my $Success = $DynamicFieldBackendObject->ValueSet(
+                DynamicFieldConfig  => $DynamicFieldResponseTime,
+                ObjectID => $Ticket{TicketID},
+                Value    => $Ticket{FirstResponseInMin},
+                UserID   => 1,
+            );
+
             #When the ticket is closed the TotalTime value is got from
             #SolutionInMin Extend Field from Ticket object subtracting the ticket stopped time
             $Success = $DynamicFieldBackendObject->ValueSet(
@@ -147,6 +163,15 @@ sub Run {
                     DynamicFieldConfig  => $DynamicField,
                     ObjectID => $Ticket{TicketID},
                     Value    => int($Ticket{SolutionTimeWorkingTime}/60),
+                    UserID   => 1,
+                );
+
+                #When the ticket is open and no SLA Stopped get the solution time from
+                #FirstResponseTimeWorkingTime Field
+                my $Success = $DynamicFieldBackendObject->ValueSet(
+                    DynamicFieldConfig  => $DynamicFieldResponseTime,
+                    ObjectID => $Ticket{TicketID},
+                    Value    => $Ticket{FirstResponseInMin},
                     UserID   => 1,
                 );
 
@@ -260,6 +285,13 @@ sub Run {
                         DynamicFieldConfig  => $DynamicField,
                         ObjectID => $Ticket{TicketID},
                         Value    => int($SolutionTime/60),
+                        UserID   => 1,
+                    );
+
+                    my $Success = $DynamicFieldBackendObject->ValueSet(
+                        DynamicFieldConfig  => $DynamicFieldResponseTime,
+                        ObjectID => $Ticket{TicketID},
+                        Value    => $Ticket{FirstResponseInMin},
                         UserID   => 1,
                     );
 
