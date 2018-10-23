@@ -147,8 +147,8 @@ sub _GetITSMDynamicFieldsDefinition {
             },
         },
         {
-            Name       => 'ResponseTime',
-            Label      => 'Response Time',
+            Name       => 'DeltaResponseTime',
+            Label      => 'Delta Response Time',
             FieldType  => 'Text',
             ObjectType => 'Ticket',
             Config     => {
@@ -174,8 +174,40 @@ sub _GetITSMDynamicFieldsDefinition {
             },
         },
         {
+            Name       => 'TotalResponseTime',
+            Label      => 'Total Response Time',
+            FieldType  => 'Text',
+            ObjectType => 'Ticket',
+            Config     => {
+                DefaultValue   => '',
+            },
+        },
+        {
             Name       => 'PercentualScaleSLA',
             Label      => 'Percentual Scale SLA',
+            FieldType  => 'Dropdown',
+            ObjectType => 'Ticket',
+            Config     => {
+                DefaultValue   => '',
+                Translatable   => 1,
+                PossibleValues => {
+                    '0-10' => '0 a 10%',
+                    '10-20'  => '10 a 20%',
+                    '20-30'  => '20 a 30%',
+                    '30-40'  => '30 a 40%',
+                    '40-50'  => '40 a 50%',
+                    '50-60'  => '50 a 60%',
+                    '60-70'  => '60 a 70%',
+                    '70-80'  => '70 a 80%',
+                    '80-90'  => '80 a 90%',
+                    '90-101'  => '90 a 100%',
+                    '>100'  => '> 100%',
+                }
+            },
+        },
+        {
+            Name       => 'PercentualScaleResponseTime',
+            Label      => 'Percentual Scale Response Time',
             FieldType  => 'Dropdown',
             ObjectType => 'Ticket',
             Config     => {

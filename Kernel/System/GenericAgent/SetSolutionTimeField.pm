@@ -56,11 +56,12 @@ sub Run {
        Name => 'SolutionTime'
     );
 
-    #Get Dynamic Field Configuration to TotalTime
-    #this dynamic field is used to receive the total time worked on the
-    #ticket in minutes of work time.
-    my $DynamicFieldTotalTime = $DynamicFieldObject->DynamicFieldGet(
-       Name => 'TotalTime'
+    #Get Dynamic Field Configuration to ResponseTime
+    #this dynamic field is used to receive the first response time
+    #spend to resolve a ticket or the total time passed from
+    #the maximum time permited to do that
+    my $DynamicFieldDeltaResponseTime = $DynamicFieldObject->DynamicFieldGet(
+       Name => 'DeltaResponseTime'
     );
 
     #Get Dynamic Field Configuration to IsSolutionTimeSLAStoppedCalculated
@@ -77,12 +78,27 @@ sub Run {
        Name => 'TotalTime'
     );
 
+    #Get Dynamic Field Configuration to TotalResponseTime
+    #this dynamic field is used to receive the total time worked on the
+    #ticket in minutes of work time.
+    my $DynamicFieldTotalResponseTime = $DynamicFieldObject->DynamicFieldGet(
+       Name => 'TotalResponseTime'
+    );
+
     #Get Dynamic Field Configuration to PercentualScaleSLA
     #this dynamic field is a Dropbox field. It contains severals options of
     #percentual range of total time to resolve a ticket in relation of expected
     #time to do this defined into the SLA configuration.
     my $DynamicFieldPercentualScaleSLA = $DynamicFieldObject->DynamicFieldGet(
 		Name => "PercentualScaleSLA",
+	);
+
+    #Get Dynamic Field Configuration to PercentualScaleResponseTime
+    #this dynamic field is a Dropbox field. It contains severals options of
+    #percentual range of total time to resolve a ticket in relation of expected
+    #time to do this defined into the SLA configuration.
+    my $DynamicFieldPercentualScaleResponseTime = $DynamicFieldObject->DynamicFieldGet(
+		Name => "PercentualScaleResponseTime",
 	);
 
     #This generic agent will be executed when the ticket has a SLA configurated
@@ -113,9 +129,18 @@ sub Run {
             #When the ticket is closed the ResponseTime value is got from
             #SolutionDiffInMin Extend Field from Ticket object.
             my $Success = $DynamicFieldBackendObject->ValueSet(
-                DynamicFieldConfig  => $DynamicFieldResponseTime,
+                DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
                 ObjectID => $Ticket{TicketID},
                 Value    => $Ticket{FirstResponseInMin},
+                UserID   => 1,
+            );
+
+            #When the ticket is closed the ResponseTime value is got from
+            #SolutionDiffInMin Extend Field from Ticket object.
+            my $Success = $DynamicFieldBackendObject->ValueSet(
+                DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
+                ObjectID => $Ticket{TicketID},
+                Value    => $Ticket{FirstResponseDiffInMin},
                 UserID   => 1,
             );
 
@@ -141,6 +166,22 @@ sub Run {
                 DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
                 ObjectID => $Ticket{TicketID},
                 Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
+                UserID   => 1,
+            );
+
+            #Calcule the percentual of time spended to resolve the ticket in relationship
+            #with the time defined in SLA configuration
+            my $percentResponseTime = 0;
+            if(($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0){
+                $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
+            }
+
+            #Select the combo box PercentualScaleResponseTime value in relationship with
+            #percentual
+            $Success = $DynamicFieldBackendObject->ValueSet(
+                DynamicFieldConfig  => $DynamicFieldPercentualScaleResponseTime,
+                ObjectID => $Ticket{TicketID},
+                Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
                 UserID   => 1,
             );
         }
@@ -169,9 +210,18 @@ sub Run {
                 #When the ticket is open and no SLA Stopped get the solution time from
                 #FirstResponseTimeWorkingTime Field
                 my $Success = $DynamicFieldBackendObject->ValueSet(
-                    DynamicFieldConfig  => $DynamicFieldResponseTime,
+                    DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
                     ObjectID => $Ticket{TicketID},
                     Value    => $Ticket{FirstResponseInMin},
+                    UserID   => 1,
+                );
+
+                #When the ticket is closed the ResponseTime value is got from
+                #SolutionDiffInMin Extend Field from Ticket object.
+                my $Success = $DynamicFieldBackendObject->ValueSet(
+                    DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
+                    ObjectID => $Ticket{TicketID},
+                    Value    => $Ticket{FirstResponseDiffInMin},
                     UserID   => 1,
                 );
 
@@ -212,6 +262,22 @@ sub Run {
                     DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
                     ObjectID => $Ticket{TicketID},
                     Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
+                    UserID   => 1,
+                );
+
+                #Calcule the percentual of time spended to resolve the ticket in relationship
+                #with the time defined in SLA configuration
+                my $percentResponseTime = 0;
+                if(($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0){
+                    $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
+                }
+
+                #Select the combo box PercentualScaleResponseTime value in relationship with
+                #percentual
+                $Success = $DynamicFieldBackendObject->ValueSet(
+                    DynamicFieldConfig  => $DynamicFieldPercentualScaleResponseTime,
+                    ObjectID => $Ticket{TicketID},
+                    Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
                     UserID   => 1,
                 );
 
@@ -289,9 +355,18 @@ sub Run {
                     );
 
                     my $Success = $DynamicFieldBackendObject->ValueSet(
-                        DynamicFieldConfig  => $DynamicFieldResponseTime,
+                        DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
                         ObjectID => $Ticket{TicketID},
                         Value    => $Ticket{FirstResponseInMin},
+                        UserID   => 1,
+                    );
+
+                    #When the ticket is closed the ResponseTime value is got from
+                    #SolutionDiffInMin Extend Field from Ticket object.
+                    my $Success = $DynamicFieldBackendObject->ValueSet(
+                        DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
+                        ObjectID => $Ticket{TicketID},
+                        Value    => $Ticket{FirstResponseDiffInMin},
                         UserID   => 1,
                     );
 
@@ -326,6 +401,22 @@ sub Run {
                         DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
                         ObjectID => $Ticket{TicketID},
                         Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
+                        UserID   => 1,
+                    );
+
+                    #Calcule the percentual of time spended to resolve the ticket in relationship
+                    #with the time defined in SLA configuration
+                    my $percentResponseTime = 0;
+                    if(($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0){
+                        $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
+                    }
+
+                    #Select the combo box PercentualScaleResponseTime value in relationship with
+                    #percentual
+                    $Success = $DynamicFieldBackendObject->ValueSet(
+                        DynamicFieldConfig  => $DynamicFieldPercentualScaleResponseTime,
+                        ObjectID => $Ticket{TicketID},
+                        Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
                         UserID   => 1,
                     );
 
@@ -364,6 +455,56 @@ sub ConvertPercentualSLAScale{
 
     my $PossibleValues = $DynamicFieldBackendObject->PossibleValuesGet(
        DynamicFieldConfig => $DynamicFieldPercentualScaleSLA,
+    );
+
+    foreach my $key (keys %{$PossibleValues}){
+        my $indexOf = index($key,'-');
+        if($indexOf > -1){
+            my $min = substr $key, 0, $indexOf;
+            my $max = substr $key, $indexOf+1;
+
+            if($Param{Value} >= $min && $Param{Value} < $max){
+                return $key;
+            }
+        }
+        $indexOf = index($key,'>');
+        if($indexOf > -1){
+            my $number = substr $key, $indexOf+1;
+            if($Param{Value} > $number){
+                return $key;
+            }
+        }
+        $indexOf = index($key,'<');
+        if($indexOf > -1){
+            my $number = substr $key, $indexOf+1;
+            if($Param{Value} < $number){
+                return $key;
+            }
+        }
+    }
+    
+    return "";
+}
+
+#This function convert one percentual to any scale configured in the dynamic field PercentualScaleResponseTime
+#The rules are: 
+#   * if the option have "-" signal the system will consider that the value have an init and an end and
+#the value will be major or equal and minor.
+#   * if the option have ">" signal the system will consider that the value have to be major of it;
+#   * if the option have "<" signal the system will consider that the value have to be minor of it;
+#   * if none of values will be found the function will return empty string;
+sub ConvertPercentualResponseTimeScale{
+    my ( $Self, %Param ) = @_;
+
+    my $DynamicFieldBackendObject  = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
+    my $DynamicFieldPercentualScaleResponseTime = $DynamicFieldObject->DynamicFieldGet(
+		Name => "PercentualScaleResponseTime",
+	);
+
+    my $PossibleValues = $DynamicFieldBackendObject->PossibleValuesGet(
+       DynamicFieldConfig => $DynamicFieldPercentualScaleResponseTime,
     );
 
     foreach my $key (keys %{$PossibleValues}){
