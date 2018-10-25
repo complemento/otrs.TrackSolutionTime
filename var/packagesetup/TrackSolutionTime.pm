@@ -147,6 +147,15 @@ sub _GetITSMDynamicFieldsDefinition {
             },
         },
         {
+            Name       => 'ResponseTime',
+            Label      => 'Response Time',
+            FieldType  => 'Text',
+            ObjectType => 'Ticket',
+            Config     => {
+                DefaultValue   => '',
+            },
+        },
+        {
             Name       => 'IsSolutionTimeSLAStoppedCalculated',
             Label      => 'Is Solution Time SLA Stopped Calculated',
             FieldType  => 'Checkbox',
