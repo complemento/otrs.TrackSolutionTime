@@ -15,7 +15,6 @@
         <File Permission="644" Location="Kernel/System/Console/Command/Maint/TrackSolutionTime/TrackSolutionTimeRebuild.pm"></File>
         <File Permission="644" Location="Kernel/System/GenericAgent/SetSolutionTimeField.pm"></File>
         <File Permission="644" Location="var/packagesetup/TrackSolutionTime.pm"></File>
-        <File GoogleDrive="1DYSNDM0oNBUx-VWRIkeXiR-rulLTOx9KL6iqAwa-0_8" Permission="644"></File>
     </Filelist>
     <CodeInstall Type="post">
         my $CodeModule = 'var::packagesetup::' . $Param{Structure}-&gt;{Name}-&gt;{Content};
