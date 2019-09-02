@@ -128,7 +128,7 @@ sub Run {
 
             #When the ticket is closed the ResponseTime value is got from
             #SolutionDiffInMin Extend Field from Ticket object.
-            my $Success = $DynamicFieldBackendObject->ValueSet(
+            $Success = $DynamicFieldBackendObject->ValueSet(
                 DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
                 ObjectID => $Ticket{TicketID},
                 Value    => $Ticket{FirstResponseInMin},
@@ -137,7 +137,7 @@ sub Run {
 
             #When the ticket is closed the ResponseTime value is got from
             #SolutionDiffInMin Extend Field from Ticket object.
-            my $Success = $DynamicFieldBackendObject->ValueSet(
+            $Success = $DynamicFieldBackendObject->ValueSet(
                 DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
                 ObjectID => $Ticket{TicketID},
                 Value    => $Ticket{FirstResponseDiffInMin},
@@ -209,7 +209,7 @@ sub Run {
 
                 #When the ticket is open and no SLA Stopped get the solution time from
                 #FirstResponseTimeWorkingTime Field
-                my $Success = $DynamicFieldBackendObject->ValueSet(
+                $Success = $DynamicFieldBackendObject->ValueSet(
                     DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
                     ObjectID => $Ticket{TicketID},
                     Value    => $Ticket{FirstResponseInMin},
@@ -218,7 +218,7 @@ sub Run {
 
                 #When the ticket is closed the ResponseTime value is got from
                 #SolutionDiffInMin Extend Field from Ticket object.
-                my $Success = $DynamicFieldBackendObject->ValueSet(
+                $Success = $DynamicFieldBackendObject->ValueSet(
                     DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
                     ObjectID => $Ticket{TicketID},
                     Value    => $Ticket{FirstResponseDiffInMin},
@@ -354,7 +354,7 @@ sub Run {
                         UserID   => 1,
                     );
 
-                    my $Success = $DynamicFieldBackendObject->ValueSet(
+                    $Success = $DynamicFieldBackendObject->ValueSet(
                         DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
                         ObjectID => $Ticket{TicketID},
                         Value    => $Ticket{FirstResponseInMin},
@@ -363,7 +363,7 @@ sub Run {
 
                     #When the ticket is closed the ResponseTime value is got from
                     #SolutionDiffInMin Extend Field from Ticket object.
-                    my $Success = $DynamicFieldBackendObject->ValueSet(
+                    $Success = $DynamicFieldBackendObject->ValueSet(
                         DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
                         ObjectID => $Ticket{TicketID},
                         Value    => $Ticket{FirstResponseDiffInMin},
