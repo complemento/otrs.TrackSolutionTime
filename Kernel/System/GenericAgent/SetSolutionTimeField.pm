@@ -101,6 +101,8 @@ sub Run {
 		Name => "PercentualScaleResponseTime",
 	);
 
+    my $Success;
+
     #This generic agent will be executed when the ticket has a SLA configurated
 	if(defined $Ticket{SLA}){
 		
@@ -119,28 +121,28 @@ sub Run {
 
             #When the ticket is closed the SolutionTime value is got from
             #SolutionDiffInMin Extend Field from Ticket object.
-            my $Success = $DynamicFieldBackendObject->ValueSet(
+            $Success = $DynamicFieldBackendObject->ValueSet(
                 DynamicFieldConfig  => $DynamicField,
                 ObjectID => $Ticket{TicketID},
-                Value    => $Ticket{SolutionDiffInMin},
+                Value    => $Ticket{SolutionDiffInMin}||0,
                 UserID   => 1,
             );
 
             #When the ticket is closed the ResponseTime value is got from
             #SolutionDiffInMin Extend Field from Ticket object.
-            my $Success = $DynamicFieldBackendObject->ValueSet(
+            $Success = $DynamicFieldBackendObject->ValueSet(
                 DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
                 ObjectID => $Ticket{TicketID},
-                Value    => $Ticket{FirstResponseInMin},
+                Value    => $Ticket{FirstResponseInMin}||0,
                 UserID   => 1,
             );
 
             #When the ticket is closed the ResponseTime value is got from
             #SolutionDiffInMin Extend Field from Ticket object.
-            my $Success = $DynamicFieldBackendObject->ValueSet(
+            $Success = $DynamicFieldBackendObject->ValueSet(
                 DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
                 ObjectID => $Ticket{TicketID},
-                Value    => $Ticket{FirstResponseDiffInMin},
+                Value    => $Ticket{FirstResponseDiffInMin}||0,
                 UserID   => 1,
             );
 
@@ -149,7 +151,7 @@ sub Run {
             $Success = $DynamicFieldBackendObject->ValueSet(
                 DynamicFieldConfig  => $DynamicFieldTotalTime,
                 ObjectID => $Ticket{TicketID},
-                Value    => $Escalation{SolutionTime}-$Ticket{SolutionDiffInMin},
+                Value    => ($Escalation{SolutionTime}||0)-($Ticket{SolutionDiffInMin}||0),
                 UserID   => 1,
             );
 
@@ -212,7 +214,7 @@ sub Run {
                 my $Success = $DynamicFieldBackendObject->ValueSet(
                     DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
                     ObjectID => $Ticket{TicketID},
-                    Value    => $Ticket{FirstResponseInMin},
+                    Value    => $Ticket{FirstResponseInMin}||0,
                     UserID   => 1,
                 );
 
@@ -221,7 +223,7 @@ sub Run {
                 my $Success = $DynamicFieldBackendObject->ValueSet(
                     DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
                     ObjectID => $Ticket{TicketID},
-                    Value    => $Ticket{FirstResponseDiffInMin},
+                    Value    => $Ticket{FirstResponseDiffInMin}||0,
                     UserID   => 1,
                 );
 
@@ -357,7 +359,7 @@ sub Run {
                     my $Success = $DynamicFieldBackendObject->ValueSet(
                         DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
                         ObjectID => $Ticket{TicketID},
-                        Value    => $Ticket{FirstResponseInMin},
+                        Value    => $Ticket{FirstResponseInMin}||0,
                         UserID   => 1,
                     );
 
@@ -366,7 +368,7 @@ sub Run {
                     my $Success = $DynamicFieldBackendObject->ValueSet(
                         DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
                         ObjectID => $Ticket{TicketID},
-                        Value    => $Ticket{FirstResponseDiffInMin},
+                        Value    => $Ticket{FirstResponseDiffInMin}||0,
                         UserID   => 1,
                     );
 
