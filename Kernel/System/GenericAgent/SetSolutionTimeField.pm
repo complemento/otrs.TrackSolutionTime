@@ -121,38 +121,122 @@ sub Run {
 
             #When the ticket is closed the SolutionTime value is got from
             #SolutionDiffInMin Extend Field from Ticket object.
-            $Success = $DynamicFieldBackendObject->ValueSet(
-                DynamicFieldConfig  => $DynamicField,
-                ObjectID => $Ticket{TicketID},
-                Value    => $Ticket{SolutionDiffInMin}||0,
-                UserID   => 1,
+            #$Success = $DynamicFieldBackendObject->ValueSet(
+            #    DynamicFieldConfig  => $DynamicField,
+            #    ObjectID => $Ticket{TicketID},
+            #    Value    => $Ticket{SolutionDiffInMin}||0,
+            #    UserID   => 1,
+            #);
+            $Success = $DynamicFieldValueObject->ValueSet(
+                FieldID => $DynamicField->{ID},
+                ObjectID => $Param{TicketID},
+                Value => [
+                    {
+                        ValueText => $Ticket{SolutionDiffInMin}||0
+                    }
+                ],
+                UserID => 1
+            );
+            $TicketObject->EventHandler(
+                Event => 'TicketDynamicFieldUpdate_' . $DynamicField->{Name},
+                Data  => {
+                    FieldName => $DynamicField->{Name},
+                    Value     => $Ticket{SolutionDiffInMin}||0,
+                    OldValue  => "",
+                    TicketID  => $Param{TicketID},
+                    UserID    => 1,
+                },
+                UserID => 1,
             );
 
             #When the ticket is closed the ResponseTime value is got from
             #SolutionDiffInMin Extend Field from Ticket object.
-            $Success = $DynamicFieldBackendObject->ValueSet(
-                DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
-                ObjectID => $Ticket{TicketID},
-                Value    => $Ticket{FirstResponseInMin}||0,
-                UserID   => 1,
+            #$Success = $DynamicFieldBackendObject->ValueSet(
+            #    DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
+            #    ObjectID => $Ticket{TicketID},
+            #    Value    => $Ticket{FirstResponseInMin}||0,
+            #    UserID   => 1,
+            #);
+            $Success = $DynamicFieldValueObject->ValueSet(
+                FieldID => $DynamicFieldTotalResponseTime->{ID},
+                ObjectID => $Param{TicketID},
+                Value => [
+                    {
+                        ValueText => $Ticket{FirstResponseInMin}||0
+                    }
+                ],
+                UserID => 1
+            );
+            $TicketObject->EventHandler(
+                Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldTotalResponseTime->{Name},
+                Data  => {
+                    FieldName => $DynamicFieldTotalResponseTime->{Name},
+                    Value     => $Ticket{FirstResponseInMin}||0,
+                    OldValue  => "",
+                    TicketID  => $Param{TicketID},
+                    UserID    => 1,
+                },
+                UserID => 1,
             );
 
             #When the ticket is closed the ResponseTime value is got from
             #SolutionDiffInMin Extend Field from Ticket object.
-            $Success = $DynamicFieldBackendObject->ValueSet(
-                DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
-                ObjectID => $Ticket{TicketID},
-                Value    => $Ticket{FirstResponseDiffInMin}||0,
-                UserID   => 1,
+            #$Success = $DynamicFieldBackendObject->ValueSet(
+            #    DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
+            #    ObjectID => $Ticket{TicketID},
+            #    Value    => $Ticket{FirstResponseDiffInMin}||0,
+            #    UserID   => 1,
+            #);
+            $Success = $DynamicFieldValueObject->ValueSet(
+                FieldID => $DynamicFieldDeltaResponseTime->{ID},
+                ObjectID => $Param{TicketID},
+                Value => [
+                    {
+                        ValueText => $Ticket{FirstResponseDiffInMin}||0
+                    }
+                ],
+                UserID => 1
+            );
+            $TicketObject->EventHandler(
+                Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldDeltaResponseTime->{Name},
+                Data  => {
+                    FieldName => $DynamicFieldDeltaResponseTime->{Name},
+                    Value     => $Ticket{FirstResponseDiffInMin}||0,
+                    OldValue  => "",
+                    TicketID  => $Param{TicketID},
+                    UserID    => 1,
+                },
+                UserID => 1,
             );
 
             #When the ticket is closed the TotalTime value is got from
             #SolutionInMin Extend Field from Ticket object subtracting the ticket stopped time
-            $Success = $DynamicFieldBackendObject->ValueSet(
-                DynamicFieldConfig  => $DynamicFieldTotalTime,
-                ObjectID => $Ticket{TicketID},
-                Value    => ($Escalation{SolutionTime}||0)-($Ticket{SolutionDiffInMin}||0),
-                UserID   => 1,
+            #$Success = $DynamicFieldBackendObject->ValueSet(
+            #    DynamicFieldConfig  => $DynamicFieldTotalTime,
+            #    ObjectID => $Ticket{TicketID},
+            #    Value    => ($Escalation{SolutionTime}||0)-($Ticket{SolutionDiffInMin}||0),
+            #    UserID   => 1,
+            #);
+            $Success = $DynamicFieldValueObject->ValueSet(
+                FieldID => $DynamicFieldTotalTime->{ID},
+                ObjectID => $Param{TicketID},
+                Value => [
+                    {
+                        ValueText => ($Escalation{SolutionTime}||0)-($Ticket{SolutionDiffInMin}||0)
+                    }
+                ],
+                UserID => 1
+            );
+            $TicketObject->EventHandler(
+                Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldTotalTime->{Name},
+                Data  => {
+                    FieldName => $DynamicFieldTotalTime->{Name},
+                    Value     => ($Escalation{SolutionTime}||0)-($Ticket{SolutionDiffInMin}||0),
+                    OldValue  => "",
+                    TicketID  => $Param{TicketID},
+                    UserID    => 1,
+                },
+                UserID => 1,
             );
 
             #Calcule the percentual of time spended to resolve the ticket in relationship
@@ -164,11 +248,32 @@ sub Run {
 
             #Select the combo box PercentualScaleSLA value in relationship with
             #percentual
-            $Success = $DynamicFieldBackendObject->ValueSet(
-                DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
-                ObjectID => $Ticket{TicketID},
-                Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
-                UserID   => 1,
+            #$Success = $DynamicFieldBackendObject->ValueSet(
+            #    DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
+            #    ObjectID => $Ticket{TicketID},
+            #    Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
+            #    UserID   => 1,
+            #);
+            $Success = $DynamicFieldValueObject->ValueSet(
+                FieldID => $DynamicFieldPercentualScaleSLA->{ID},
+                ObjectID => $Param{TicketID},
+                Value => [
+                    {
+                        ValueText => $Self->ConvertPercentualSLAScale(Value=>$percent)
+                    }
+                ],
+                UserID => 1
+            );
+            $TicketObject->EventHandler(
+                Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleSLA->{Name},
+                Data  => {
+                    FieldName => $DynamicFieldPercentualScaleSLA->{Name},
+                    Value     => $Self->ConvertPercentualSLAScale(Value=>$percent),
+                    OldValue  => "",
+                    TicketID  => $Param{TicketID},
+                    UserID    => 1,
+                },
+                UserID => 1,
             );
 
             #Calcule the percentual of time spended to resolve the ticket in relationship
@@ -180,11 +285,32 @@ sub Run {
 
             #Select the combo box PercentualScaleResponseTime value in relationship with
             #percentual
-            $Success = $DynamicFieldBackendObject->ValueSet(
-                DynamicFieldConfig  => $DynamicFieldPercentualScaleResponseTime,
-                ObjectID => $Ticket{TicketID},
-                Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
-                UserID   => 1,
+            #$Success = $DynamicFieldBackendObject->ValueSet(
+            #    DynamicFieldConfig  => $DynamicFieldPercentualScaleResponseTime,
+            #    ObjectID => $Ticket{TicketID},
+            #    Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
+            #    UserID   => 1,
+            #);
+            $Success = $DynamicFieldValueObject->ValueSet(
+                FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
+                ObjectID => $Param{TicketID},
+                Value => [
+                    {
+                        ValueText => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime)
+                    }
+                ],
+                UserID => 1
+            );
+            $TicketObject->EventHandler(
+                Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleResponseTime->{Name},
+                Data  => {
+                    FieldName => $DynamicFieldPercentualScaleResponseTime->{Name},
+                    Value     => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
+                    OldValue  => "",
+                    TicketID  => $Param{TicketID},
+                    UserID    => 1,
+                },
+                UserID => 1,
             );
         }
         else{
@@ -202,29 +328,92 @@ sub Run {
             if($notIsSLAStopped){
                 #When the ticket is open and no SLA Stopped get the solution time from
                 #SolutionTimeWorkingTime Field
-                my $Success = $DynamicFieldBackendObject->ValueSet(
-                    DynamicFieldConfig  => $DynamicField,
-                    ObjectID => $Ticket{TicketID},
-                    Value    => int($Ticket{SolutionTimeWorkingTime}/60),
-                    UserID   => 1,
+                #my $Success = $DynamicFieldBackendObject->ValueSet(
+                #    DynamicFieldConfig  => $DynamicField,
+                #    ObjectID => $Ticket{TicketID},
+                #    Value    => int($Ticket{SolutionTimeWorkingTime}/60),
+                #    UserID   => 1,
+                #);
+                $Success = $DynamicFieldValueObject->ValueSet(
+                    FieldID => $DynamicField->{ID},
+                    ObjectID => $Param{TicketID},
+                    Value => [
+                        {
+                            ValueText => int($Ticket{SolutionTimeWorkingTime}/60)
+                        }
+                    ],
+                    UserID => 1
+                );
+                $TicketObject->EventHandler(
+                    Event => 'TicketDynamicFieldUpdate_' . $DynamicField->{Name},
+                    Data  => {
+                        FieldName => $DynamicField->{Name},
+                        Value     => int($Ticket{SolutionTimeWorkingTime}/60),
+                        OldValue  => "",
+                        TicketID  => $Param{TicketID},
+                        UserID    => 1,
+                    },
+                    UserID => 1,
                 );
 
                 #When the ticket is open and no SLA Stopped get the solution time from
                 #FirstResponseTimeWorkingTime Field
-                my $Success = $DynamicFieldBackendObject->ValueSet(
-                    DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
-                    ObjectID => $Ticket{TicketID},
-                    Value    => $Ticket{FirstResponseInMin}||0,
-                    UserID   => 1,
+                #my $Success = $DynamicFieldBackendObject->ValueSet(
+                #    DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
+                #    ObjectID => $Ticket{TicketID},
+                #    Value    => $Ticket{FirstResponseInMin}||0,
+                #    UserID   => 1,
+                #);
+                $Success = $DynamicFieldValueObject->ValueSet(
+                    FieldID => $DynamicFieldTotalResponseTime->{ID},
+                    ObjectID => $Param{TicketID},
+                    Value => [
+                        {
+                            ValueText => $Ticket{FirstResponseInMin}||0
+                        }
+                    ],
+                    UserID => 1
+                );
+                $TicketObject->EventHandler(
+                    Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldTotalResponseTime->{Name},
+                    Data  => {
+                        FieldName => $DynamicFieldTotalResponseTime->{Name},
+                        Value     => $Ticket{FirstResponseInMin}||0,
+                        OldValue  => "",
+                        TicketID  => $Param{TicketID},
+                        UserID    => 1,
+                    },
+                    UserID => 1,
                 );
 
                 #When the ticket is closed the ResponseTime value is got from
                 #SolutionDiffInMin Extend Field from Ticket object.
-                my $Success = $DynamicFieldBackendObject->ValueSet(
-                    DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
-                    ObjectID => $Ticket{TicketID},
-                    Value    => $Ticket{FirstResponseDiffInMin}||0,
-                    UserID   => 1,
+                #my $Success = $DynamicFieldBackendObject->ValueSet(
+                #    DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
+                #    ObjectID => $Ticket{TicketID},
+                #    Value    => $Ticket{FirstResponseDiffInMin}||0,
+                #    UserID   => 1,
+                #);
+                $Success = $DynamicFieldValueObject->ValueSet(
+                    FieldID => $DynamicFieldDeltaResponseTime->{ID},
+                    ObjectID => $Param{TicketID},
+                    Value => [
+                        {
+                            ValueText => Ticket{FirstResponseDiffInMin}||0
+                        }
+                    ],
+                    UserID => 1
+                );
+                $TicketObject->EventHandler(
+                    Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldDeltaResponseTime->{Name},
+                    Data  => {
+                        FieldName => $DynamicFieldDeltaResponseTime->{Name},
+                        Value     => Ticket{FirstResponseDiffInMin}||0,
+                        OldValue  => "",
+                        TicketID  => $Param{TicketID},
+                        UserID    => 1,
+                    },
+                    UserID => 1,
                 );
 
                 #Get the data of Ticket Escalation 
@@ -244,11 +433,32 @@ sub Run {
                     Calendar  => $Escalation{Calendar},
                 )-$PendSumTime;
 
-                $DynamicFieldBackendObject->ValueSet(
-                    DynamicFieldConfig  => $DynamicFieldTotalTime,
-                    ObjectID => $Ticket{TicketID},
-                    Value    => int($WorkingTime/60),
-                    UserID   => 1,
+                #$DynamicFieldBackendObject->ValueSet(
+                #    DynamicFieldConfig  => $DynamicFieldTotalTime,
+                #    ObjectID => $Ticket{TicketID},
+                #    Value    => int($WorkingTime/60),
+                #    UserID   => 1,
+                #);
+                $Success = $DynamicFieldValueObject->ValueSet(
+                    FieldID => $DynamicFieldTotalTime->{ID},
+                    ObjectID => $Param{TicketID},
+                    Value => [
+                        {
+                            ValueText => int($WorkingTime/60)
+                        }
+                    ],
+                    UserID => 1
+                );
+                $TicketObject->EventHandler(
+                    Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldTotalTime->{Name},
+                    Data  => {
+                        FieldName => $DynamicFieldTotalTime->{Name},
+                        Value     => int($WorkingTime/60),
+                        OldValue  => "",
+                        TicketID  => $Param{TicketID},
+                        UserID    => 1,
+                    },
+                    UserID => 1,
                 );
 
                 #Calcule the percentual of time spended to resolve the ticket in relationship
@@ -260,11 +470,32 @@ sub Run {
 
                 #Select the combo box PercentualScaleSLA value in relationship with
                 #percentual
-                $Success = $DynamicFieldBackendObject->ValueSet(
-                    DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
-                    ObjectID => $Ticket{TicketID},
-                    Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
-                    UserID   => 1,
+                #$Success = $DynamicFieldBackendObject->ValueSet(
+                #    DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
+                #    ObjectID => $Ticket{TicketID},
+                #    Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
+                #    UserID   => 1,
+                #);
+                $Success = $DynamicFieldValueObject->ValueSet(
+                    FieldID => $DynamicFieldPercentualScaleSLA->{ID},
+                    ObjectID => $Param{TicketID},
+                    Value => [
+                        {
+                            ValueText => $Self->ConvertPercentualSLAScale(Value=>$percent)
+                        }
+                    ],
+                    UserID => 1
+                );
+                $TicketObject->EventHandler(
+                    Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleSLA->{Name},
+                    Data  => {
+                        FieldName => $DynamicFieldPercentualScaleSLA->{Name},
+                        Value     => $Self->ConvertPercentualSLAScale(Value=>$percent),
+                        OldValue  => "",
+                        TicketID  => $Param{TicketID},
+                        UserID    => 1,
+                    },
+                    UserID => 1,
                 );
 
                 #Calcule the percentual of time spended to resolve the ticket in relationship
@@ -276,20 +507,62 @@ sub Run {
 
                 #Select the combo box PercentualScaleResponseTime value in relationship with
                 #percentual
-                $Success = $DynamicFieldBackendObject->ValueSet(
-                    DynamicFieldConfig  => $DynamicFieldPercentualScaleResponseTime,
-                    ObjectID => $Ticket{TicketID},
-                    Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
-                    UserID   => 1,
+                #$Success = $DynamicFieldBackendObject->ValueSet(
+                #    DynamicFieldConfig  => $DynamicFieldPercentualScaleResponseTime,
+                #    ObjectID => $Ticket{TicketID},
+                #    Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
+                #    UserID   => 1,
+                #);
+                $Success = $DynamicFieldValueObject->ValueSet(
+                    FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
+                    ObjectID => $Param{TicketID},
+                    Value => [
+                        {
+                            ValueText => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime)
+                        }
+                    ],
+                    UserID => 1
+                );
+                $TicketObject->EventHandler(
+                    Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleResponseTime->{Name},
+                    Data  => {
+                        FieldName => $DynamicFieldPercentualScaleResponseTime->{Name},
+                        Value     => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
+                        OldValue  => "",
+                        TicketID  => $Param{TicketID},
+                        UserID    => 1,
+                    },
+                    UserID => 1,
                 );
 
                 #When the ticket is oppened and no SLA Stopped, update the IsSolutionTimeSLAStoppedCalculated
                 #dynamic field to false (0)
-                $DynamicFieldBackendObject->ValueSet(
-                    DynamicFieldConfig  => $DynamicFieldIsCalc,
-                    ObjectID => $Ticket{TicketID},
-                    Value    => 0,
-                    UserID   => 1,
+                #$DynamicFieldBackendObject->ValueSet(
+                #    DynamicFieldConfig  => $DynamicFieldIsCalc,
+                #    ObjectID => $Ticket{TicketID},
+                #    Value    => 0,
+                #    UserID   => 1,
+                #);
+                $Success = $DynamicFieldValueObject->ValueSet(
+                    FieldID => $DynamicFieldIsCalc->{ID},
+                    ObjectID => $Param{TicketID},
+                    Value => [
+                        {
+                            ValueText => 0
+                        }
+                    ],
+                    UserID => 1
+                );
+                $TicketObject->EventHandler(
+                    Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldIsCalc->{Name},
+                    Data  => {
+                        FieldName => $DynamicFieldIsCalc->{Name},
+                        Value     => 0,
+                        OldValue  => "",
+                        TicketID  => $Param{TicketID},
+                        UserID    => 1,
+                    },
+                    UserID => 1,
                 );
             }
             else{
@@ -349,27 +622,90 @@ sub Run {
                         )*-1;
                     }
 
-                    my $Success = $DynamicFieldBackendObject->ValueSet(
-                        DynamicFieldConfig  => $DynamicField,
-                        ObjectID => $Ticket{TicketID},
-                        Value    => int($SolutionTime/60),
-                        UserID   => 1,
+                    #my $Success = $DynamicFieldBackendObject->ValueSet(
+                    #    DynamicFieldConfig  => $DynamicField,
+                    #    ObjectID => $Ticket{TicketID},
+                    #    Value    => int($SolutionTime/60),
+                    #    UserID   => 1,
+                    #);
+                    my $Success = $DynamicFieldValueObject->ValueSet(
+                        FieldID => $DynamicField->{ID},
+                        ObjectID => $Param{TicketID},
+                        Value => [
+                            {
+                                ValueText => int($SolutionTime/60)
+                            }
+                        ],
+                        UserID => 1
+                    );
+                    $TicketObject->EventHandler(
+                        Event => 'TicketDynamicFieldUpdate_' . $DynamicField->{Name},
+                        Data  => {
+                            FieldName => $DynamicField->{Name},
+                            Value     => int($SolutionTime/60),
+                            OldValue  => "",
+                            TicketID  => $Param{TicketID},
+                            UserID    => 1,
+                        },
+                        UserID => 1,
                     );
 
-                    my $Success = $DynamicFieldBackendObject->ValueSet(
-                        DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
-                        ObjectID => $Ticket{TicketID},
-                        Value    => $Ticket{FirstResponseInMin}||0,
-                        UserID   => 1,
+                    #my $Success = $DynamicFieldBackendObject->ValueSet(
+                    #    DynamicFieldConfig  => $DynamicFieldTotalResponseTime,
+                    #    ObjectID => $Ticket{TicketID},
+                    #    Value    => $Ticket{FirstResponseInMin}||0,
+                    #    UserID   => 1,
+                    #);
+                    my $Success = $DynamicFieldValueObject->ValueSet(
+                        FieldID => $DynamicFieldTotalResponseTime->{ID},
+                        ObjectID => $Param{TicketID},
+                        Value => [
+                            {
+                                ValueText => $Ticket{FirstResponseInMin}||0
+                            }
+                        ],
+                        UserID => 1
+                    );
+                    $TicketObject->EventHandler(
+                        Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldTotalResponseTime->{Name},
+                        Data  => {
+                            FieldName => $DynamicFieldTotalResponseTime->{Name},
+                            Value     => $Ticket{FirstResponseInMin}||0,
+                            OldValue  => "",
+                            TicketID  => $Param{TicketID},
+                            UserID    => 1,
+                        },
+                        UserID => 1,
                     );
 
                     #When the ticket is closed the ResponseTime value is got from
                     #SolutionDiffInMin Extend Field from Ticket object.
-                    my $Success = $DynamicFieldBackendObject->ValueSet(
-                        DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
-                        ObjectID => $Ticket{TicketID},
-                        Value    => $Ticket{FirstResponseDiffInMin}||0,
-                        UserID   => 1,
+                    #my $Success = $DynamicFieldBackendObject->ValueSet(
+                    #    DynamicFieldConfig  => $DynamicFieldDeltaResponseTime,
+                    #    ObjectID => $Ticket{TicketID},
+                    #    Value    => $Ticket{FirstResponseDiffInMin}||0,
+                    #    UserID   => 1,
+                    #);
+                    my $Success = $DynamicFieldValueObject->ValueSet(
+                        FieldID => $DynamicFieldDeltaResponseTime->{ID},
+                        ObjectID => $Param{TicketID},
+                        Value => [
+                            {
+                                ValueText => $Ticket{FirstResponseDiffInMin}||0
+                            }
+                        ],
+                        UserID => 1
+                    );
+                    $TicketObject->EventHandler(
+                        Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldDeltaResponseTime->{Name},
+                        Data  => {
+                            FieldName => $DynamicFieldDeltaResponseTime->{Name},
+                            Value     => $Ticket{FirstResponseDiffInMin}||0,
+                            OldValue  => "",
+                            TicketID  => $Param{TicketID},
+                            UserID    => 1,
+                        },
+                        UserID => 1,
                     );
 
                     #When the ticket is SLA Stopped the Total WorkingTime 
@@ -383,11 +719,32 @@ sub Run {
                         Calendar  => $Escalation{Calendar},
                     )-$PendSumTime;
 
-                    $DynamicFieldBackendObject->ValueSet(
-                        DynamicFieldConfig  => $DynamicFieldTotalTime,
-                        ObjectID => $Ticket{TicketID},
-                        Value    => int($WorkingTime/60),
-                        UserID   => 1,
+                    #$DynamicFieldBackendObject->ValueSet(
+                    #    DynamicFieldConfig  => $DynamicFieldTotalTime,
+                    #    ObjectID => $Ticket{TicketID},
+                    #    Value    => int($WorkingTime/60),
+                    #    UserID   => 1,
+                    #);
+                    $Success = $DynamicFieldValueObject->ValueSet(
+                        FieldID => $DynamicFieldTotalTime->{ID},
+                        ObjectID => $Param{TicketID},
+                        Value => [
+                            {
+                                ValueText => int($WorkingTime/60)
+                            }
+                        ],
+                        UserID => 1
+                    );
+                    $TicketObject->EventHandler(
+                        Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldTotalTime->{Name},
+                        Data  => {
+                            FieldName => $DynamicFieldTotalTime->{Name},
+                            Value     => int($WorkingTime/60),
+                            OldValue  => "",
+                            TicketID  => $Param{TicketID},
+                            UserID    => 1,
+                        },
+                        UserID => 1,
                     );
 
                     #Calcule the percentual of time spended to resolve the ticket in relationship
@@ -399,11 +756,32 @@ sub Run {
 
                     #Select the combo box PercentualScaleSLA value in relationship with
                     #percentual
-                    $Success = $DynamicFieldBackendObject->ValueSet(
-                        DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
-                        ObjectID => $Ticket{TicketID},
-                        Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
-                        UserID   => 1,
+                    #$Success = $DynamicFieldBackendObject->ValueSet(
+                    #    DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
+                    #    ObjectID => $Ticket{TicketID},
+                    #    Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
+                    #    UserID   => 1,
+                    #);
+                    $Success = $DynamicFieldValueObject->ValueSet(
+                        FieldID => $DynamicFieldPercentualScaleSLA->{ID},
+                        ObjectID => $Param{TicketID},
+                        Value => [
+                            {
+                                ValueText => $Self->ConvertPercentualSLAScale(Value=>$percent)
+                            }
+                        ],
+                        UserID => 1
+                    );
+                    $TicketObject->EventHandler(
+                        Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleSLA->{Name},
+                        Data  => {
+                            FieldName => $DynamicFieldPercentualScaleSLA->{Name},
+                            Value     => $Self->ConvertPercentualSLAScale(Value=>$percent),
+                            OldValue  => "",
+                            TicketID  => $Param{TicketID},
+                            UserID    => 1,
+                        },
+                        UserID => 1,
                     );
 
                     #Calcule the percentual of time spended to resolve the ticket in relationship
@@ -415,21 +793,63 @@ sub Run {
 
                     #Select the combo box PercentualScaleResponseTime value in relationship with
                     #percentual
-                    $Success = $DynamicFieldBackendObject->ValueSet(
-                        DynamicFieldConfig  => $DynamicFieldPercentualScaleResponseTime,
-                        ObjectID => $Ticket{TicketID},
-                        Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
-                        UserID   => 1,
+                    #$Success = $DynamicFieldBackendObject->ValueSet(
+                    #    DynamicFieldConfig  => $DynamicFieldPercentualScaleResponseTime,
+                    #    ObjectID => $Ticket{TicketID},
+                    #    Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
+                    #    UserID   => 1,
+                    #);
+                    $Success = $DynamicFieldValueObject->ValueSet(
+                        FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
+                        ObjectID => $Param{TicketID},
+                        Value => [
+                            {
+                                ValueText => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime)
+                            }
+                        ],
+                        UserID => 1
+                    );
+                    $TicketObject->EventHandler(
+                        Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleResponseTime->{Name},
+                        Data  => {
+                            FieldName => $DynamicFieldPercentualScaleResponseTime->{Name},
+                            Value     => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
+                            OldValue  => "",
+                            TicketID  => $Param{TicketID},
+                            UserID    => 1,
+                        },
+                        UserID => 1,
                     );
 
                     #When the ticket is SLA Stopped, update the IsSolutionTimeSLAStoppedCalculated
                     #dynamic field to true (1). This ensures that this calcule will be made just one
                     #time while this ticket is stopped 
-                    $DynamicFieldBackendObject->ValueSet(
-                        DynamicFieldConfig  => $DynamicFieldIsCalc,
-                        ObjectID => $Ticket{TicketID},
-                        Value    => 1,
-                        UserID   => 1,
+                    #$DynamicFieldBackendObject->ValueSet(
+                    #    DynamicFieldConfig  => $DynamicFieldIsCalc,
+                    #    ObjectID => $Ticket{TicketID},
+                    #    Value    => 1,
+                    #    UserID   => 1,
+                    #);
+                    $Success = $DynamicFieldValueObject->ValueSet(
+                        FieldID => $DynamicFieldIsCalc->{ID},
+                        ObjectID => $Param{TicketID},
+                        Value => [
+                            {
+                                ValueText => 1
+                            }
+                        ],
+                        UserID => 1
+                    );
+                    $TicketObject->EventHandler(
+                        Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldIsCalc->{Name},
+                        Data  => {
+                            FieldName => $DynamicFieldIsCalc->{Name},
+                            Value     => 1,
+                            OldValue  => "",
+                            TicketID  => $Param{TicketID},
+                            UserID    => 1,
+                        },
+                        UserID => 1,
                     );
                 }
             }
