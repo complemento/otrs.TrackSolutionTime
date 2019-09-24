@@ -127,6 +127,7 @@ sub Run {
             #    Value    => $Ticket{SolutionDiffInMin}||0,
             #    UserID   => 1,
             #);
+
             $Success = $DynamicFieldValueObject->ValueSet(
                 FieldID => $DynamicField->{ID},
                 ObjectID => $Param{TicketID},
@@ -279,7 +280,7 @@ sub Run {
             #Calcule the percentual of time spended to resolve the ticket in relationship
             #with the time defined in SLA configuration
             my $percentResponseTime = 0;
-            if(($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0){
+            if((($Ticket{FirstResponseInMin}||0)+($Ticket{FirstResponseDiffInMin}||0)) > 0){
                 $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
             }
 
@@ -399,7 +400,7 @@ sub Run {
                     ObjectID => $Param{TicketID},
                     Value => [
                         {
-                            ValueText => Ticket{FirstResponseDiffInMin}||0
+                            ValueText => $Ticket{FirstResponseDiffInMin}||0
                         }
                     ],
                     UserID => 1
@@ -408,7 +409,7 @@ sub Run {
                     Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldDeltaResponseTime->{Name},
                     Data  => {
                         FieldName => $DynamicFieldDeltaResponseTime->{Name},
-                        Value     => Ticket{FirstResponseDiffInMin}||0,
+                        Value     => $Ticket{FirstResponseDiffInMin}||0,
                         OldValue  => "",
                         TicketID  => $Param{TicketID},
                         UserID    => 1,
@@ -628,7 +629,7 @@ sub Run {
                     #    Value    => int($SolutionTime/60),
                     #    UserID   => 1,
                     #);
-                    my $Success = $DynamicFieldValueObject->ValueSet(
+                    $Success = $DynamicFieldValueObject->ValueSet(
                         FieldID => $DynamicField->{ID},
                         ObjectID => $Param{TicketID},
                         Value => [
@@ -656,7 +657,7 @@ sub Run {
                     #    Value    => $Ticket{FirstResponseInMin}||0,
                     #    UserID   => 1,
                     #);
-                    my $Success = $DynamicFieldValueObject->ValueSet(
+                    $Success = $DynamicFieldValueObject->ValueSet(
                         FieldID => $DynamicFieldTotalResponseTime->{ID},
                         ObjectID => $Param{TicketID},
                         Value => [
@@ -686,7 +687,7 @@ sub Run {
                     #    Value    => $Ticket{FirstResponseDiffInMin}||0,
                     #    UserID   => 1,
                     #);
-                    my $Success = $DynamicFieldValueObject->ValueSet(
+                    $Success = $DynamicFieldValueObject->ValueSet(
                         FieldID => $DynamicFieldDeltaResponseTime->{ID},
                         ObjectID => $Param{TicketID},
                         Value => [
