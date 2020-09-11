@@ -101,6 +101,8 @@ sub Run {
 		Name => "PercentualScaleResponseTime",
 	);
 
+    my $Success;
+    
     #This generic agent will be executed when the ticket has a SLA configurated
 	if(defined $Ticket{SLA}){
 		
