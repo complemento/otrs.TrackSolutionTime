@@ -218,12 +218,16 @@ sub Run {
             #    Value    => ($Escalation{SolutionTime}||0)-($Ticket{SolutionDiffInMin}||0),
             #    UserID   => 1,
             #);
+            my $WorkingTime = ($Escalation{SolutionTime}||0)-($Ticket{SolutionDiffInMin}||0);
+            $WorkingTime = $WorkingTime * 60;
+            $WorkingTime = $WorkingTime -$PendSumTime;
+            $WorkingTime = $WorkingTime / 60;
             $Success = $DynamicFieldValueObject->ValueSet(
                 FieldID => $DynamicFieldTotalTime->{ID},
                 ObjectID => $Param{TicketID},
                 Value => [
                     {
-                        ValueText => ($Escalation{SolutionTime}||0)-($Ticket{SolutionDiffInMin}||0)
+                        ValueText => $WorkingTime
                     }
                 ],
                 UserID => 1
@@ -232,7 +236,7 @@ sub Run {
                 Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldTotalTime->{Name},
                 Data  => {
                     FieldName => $DynamicFieldTotalTime->{Name},
-                    Value     => ($Escalation{SolutionTime}||0)-($Ticket{SolutionDiffInMin}||0),
+                    Value     => $WorkingTime,
                     OldValue  => "",
                     TicketID  => $Param{TicketID},
                     UserID    => 1,
@@ -244,7 +248,7 @@ sub Run {
             #with the time defined in SLA configuration
             my $percent = 0;
             if($Escalation{SolutionTime} != 0){
-                $percent = (($Escalation{SolutionTime}-$Ticket{SolutionDiffInMin}) * 100) / $Escalation{SolutionTime};
+                $percent = ($WorkingTime * 100) / $Escalation{SolutionTime};
             }
 
             #Select the combo box PercentualScaleSLA value in relationship with
