@@ -507,8 +507,15 @@ sub Run {
                 #Calcule the percentual of time spended to resolve the ticket in relationship
                 #with the time defined in SLA configuration
                 my $percentResponseTime = 0;
-                if(($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0 && $Escalation{FirstResponseTime} != 0){
-                    $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
+                if(( ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0 || $WorkingTime > 0) && $Escalation{FirstResponseTime} != 0){
+
+                    if($Ticket{FirstResponseInMin} == 0){
+                      $percentResponseTime = ($WorkingTime * 100) / $Escalation{FirstResponseTime};
+                    }
+                    else {
+                      $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
+                    }
+                    
 
                     $Success = $DynamicFieldValueObject->ValueSet(
                         FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
@@ -794,8 +801,14 @@ sub Run {
                     #Calcule the percentual of time spended to resolve the ticket in relationship
                     #with the time defined in SLA configuration
                     my $percentResponseTime = 0;
-                    if(($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0 && $Escalation{FirstResponseTime} != 0){
-                        $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
+                    if(( ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0 || $WorkingTime > 0) && $Escalation{FirstResponseTime} != 0){
+
+                        if($Ticket{FirstResponseInMin} == 0){
+                          $percentResponseTime = ($WorkingTime * 100) / $Escalation{FirstResponseTime};
+                        }
+                        else {
+                          $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
+                        }
 
                         $Success = $DynamicFieldValueObject->ValueSet(
                             FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
