@@ -249,26 +249,27 @@ sub Run {
             my $percent = 0;
             if($Escalation{SolutionTime} != 0){
                 $percent = ($WorkingTime * 100) / $Escalation{SolutionTime};
+
+                $Success = $DynamicFieldValueObject->ValueSet(
+                    FieldID => $DynamicFieldPercentualScaleSLA->{ID},
+                    ObjectID => $Param{TicketID},
+                    Value => [
+                        {
+                            ValueText => $Self->ConvertPercentualSLAScale(Value=>$percent)
+                        }
+                    ],
+                    UserID => 1
+                );
+                
+
+            } else {
+              $Success = $DynamicFieldValueObject->ValueDelete(
+                  FieldID => $DynamicFieldPercentualScaleSLA->{ID},
+                  ObjectID => $Param{TicketID},
+                  UserID             => 1,
+              );
             }
 
-            #Select the combo box PercentualScaleSLA value in relationship with
-            #percentual
-            #$Success = $DynamicFieldBackendObject->ValueSet(
-            #    DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
-            #    ObjectID => $Ticket{TicketID},
-            #    Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
-            #    UserID   => 1,
-            #);
-            $Success = $DynamicFieldValueObject->ValueSet(
-                FieldID => $DynamicFieldPercentualScaleSLA->{ID},
-                ObjectID => $Param{TicketID},
-                Value => [
-                    {
-                        ValueText => $Self->ConvertPercentualSLAScale(Value=>$percent)
-                    }
-                ],
-                UserID => 1
-            );
             $TicketObject->EventHandler(
                 Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleSLA->{Name},
                 Data  => {
@@ -280,32 +281,32 @@ sub Run {
                 },
                 UserID => 1,
             );
+            
 
             #Calcule the percentual of time spended to resolve the ticket in relationship
             #with the time defined in SLA configuration
             my $percentResponseTime = 0;
             if((($Ticket{FirstResponseInMin}||0)+($Ticket{FirstResponseDiffInMin}||0)) > 0 && $Escalation{FirstResponseTime} != 0){
                 $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
+                $Success = $DynamicFieldValueObject->ValueSet(
+                    FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
+                    ObjectID => $Param{TicketID},
+                    Value => [
+                        {
+                            ValueText => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime)
+                        }
+                    ],
+                    UserID => 1
+                );
             }
-
-            #Select the combo box PercentualScaleResponseTime value in relationship with
-            #percentual
-            #$Success = $DynamicFieldBackendObject->ValueSet(
-            #    DynamicFieldConfig  => $DynamicFieldPercentualScaleResponseTime,
-            #    ObjectID => $Ticket{TicketID},
-            #    Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
-            #    UserID   => 1,
-            #);
-            $Success = $DynamicFieldValueObject->ValueSet(
-                FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
-                ObjectID => $Param{TicketID},
-                Value => [
-                    {
-                        ValueText => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime)
-                    }
-                ],
-                UserID => 1
-            );
+            else {
+              $Success = $DynamicFieldValueObject->ValueDelete(
+                  FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
+                  ObjectID => $Param{TicketID},
+                  UserID             => 1,
+              );
+            }
+            
             $TicketObject->EventHandler(
                 Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleResponseTime->{Name},
                 Data  => {
@@ -471,26 +472,26 @@ sub Run {
                 my $percent = 0;
                 if($Escalation{SolutionTime} != 0){
                     $percent = (($WorkingTime/60) * 100) / $Escalation{SolutionTime};
-                }
 
-                #Select the combo box PercentualScaleSLA value in relationship with
-                #percentual
-                #$Success = $DynamicFieldBackendObject->ValueSet(
-                #    DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
-                #    ObjectID => $Ticket{TicketID},
-                #    Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
-                #    UserID   => 1,
-                #);
-                $Success = $DynamicFieldValueObject->ValueSet(
-                    FieldID => $DynamicFieldPercentualScaleSLA->{ID},
-                    ObjectID => $Param{TicketID},
-                    Value => [
-                        {
-                            ValueText => $Self->ConvertPercentualSLAScale(Value=>$percent)
-                        }
-                    ],
-                    UserID => 1
-                );
+                    $Success = $DynamicFieldValueObject->ValueSet(
+                        FieldID => $DynamicFieldPercentualScaleSLA->{ID},
+                        ObjectID => $Param{TicketID},
+                        Value => [
+                            {
+                                ValueText => $Self->ConvertPercentualSLAScale(Value=>$percent)
+                            }
+                        ],
+                        UserID => 1
+                    );
+
+                } else {
+                  $Success = $DynamicFieldValueObject->ValueDelete(
+                      FieldID => $DynamicFieldPercentualScaleSLA->{ID},
+                      ObjectID => $Param{TicketID},
+                      UserID             => 1,
+                  );
+                }
+                
                 $TicketObject->EventHandler(
                     Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleSLA->{Name},
                     Data  => {
@@ -506,28 +507,34 @@ sub Run {
                 #Calcule the percentual of time spended to resolve the ticket in relationship
                 #with the time defined in SLA configuration
                 my $percentResponseTime = 0;
-                if(($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0 && $Escalation{FirstResponseTime} != 0){
-                    $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
-                }
+                if(( ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0 || $WorkingTime > 0) && $Escalation{FirstResponseTime} != 0){
 
-                #Select the combo box PercentualScaleResponseTime value in relationship with
-                #percentual
-                #$Success = $DynamicFieldBackendObject->ValueSet(
-                #    DynamicFieldConfig  => $DynamicFieldPercentualScaleResponseTime,
-                #    ObjectID => $Ticket{TicketID},
-                #    Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
-                #    UserID   => 1,
-                #);
-                $Success = $DynamicFieldValueObject->ValueSet(
-                    FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
-                    ObjectID => $Param{TicketID},
-                    Value => [
-                        {
-                            ValueText => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime)
-                        }
-                    ],
-                    UserID => 1
-                );
+                    if($Ticket{FirstResponseInMin} == 0){
+                      $percentResponseTime = ($WorkingTime * 100) / $Escalation{FirstResponseTime};
+                    }
+                    else {
+                      $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
+                    }
+                    
+
+                    $Success = $DynamicFieldValueObject->ValueSet(
+                        FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
+                        ObjectID => $Param{TicketID},
+                        Value => [
+                            {
+                                ValueText => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime)
+                            }
+                        ],
+                        UserID => 1
+                    );
+
+                } else {
+                  $Success = $DynamicFieldValueObject->ValueDelete(
+                      FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
+                      ObjectID => $Param{TicketID},
+                      UserID             => 1,
+                  );
+                }
                 $TicketObject->EventHandler(
                     Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleResponseTime->{Name},
                     Data  => {
@@ -757,26 +764,28 @@ sub Run {
                     my $percent = 0;
                     if($Escalation{SolutionTime} != 0){
                         $percent = (($WorkingTime/60) * 100) / $Escalation{SolutionTime};
+
+                        $Success = $DynamicFieldValueObject->ValueSet(
+                            FieldID => $DynamicFieldPercentualScaleSLA->{ID},
+                            ObjectID => $Param{TicketID},
+                            Value => [
+                                {
+                                    ValueText => $Self->ConvertPercentualSLAScale(Value=>$percent)
+                                }
+                            ],
+                            UserID => 1
+                        );
+
+                    } else {
+
+                        $Success = $DynamicFieldValueObject->ValueDelete(
+                            FieldID => $DynamicFieldPercentualScaleSLA->{ID},
+                            ObjectID => $Param{TicketID},
+                            UserID             => 1,
+                        );
+
                     }
 
-                    #Select the combo box PercentualScaleSLA value in relationship with
-                    #percentual
-                    #$Success = $DynamicFieldBackendObject->ValueSet(
-                    #    DynamicFieldConfig  => $DynamicFieldPercentualScaleSLA,
-                    #    ObjectID => $Ticket{TicketID},
-                    #    Value    => $Self->ConvertPercentualSLAScale(Value=>$percent),
-                    #    UserID   => 1,
-                    #);
-                    $Success = $DynamicFieldValueObject->ValueSet(
-                        FieldID => $DynamicFieldPercentualScaleSLA->{ID},
-                        ObjectID => $Param{TicketID},
-                        Value => [
-                            {
-                                ValueText => $Self->ConvertPercentualSLAScale(Value=>$percent)
-                            }
-                        ],
-                        UserID => 1
-                    );
                     $TicketObject->EventHandler(
                         Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleSLA->{Name},
                         Data  => {
@@ -792,8 +801,34 @@ sub Run {
                     #Calcule the percentual of time spended to resolve the ticket in relationship
                     #with the time defined in SLA configuration
                     my $percentResponseTime = 0;
-                    if(($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0 && $Escalation{FirstResponseTime} != 0){
-                        $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
+                    if(( ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin}) > 0 || $WorkingTime > 0) && $Escalation{FirstResponseTime} != 0){
+
+                        if($Ticket{FirstResponseInMin} == 0){
+                          $percentResponseTime = ($WorkingTime * 100) / $Escalation{FirstResponseTime};
+                        }
+                        else {
+                          $percentResponseTime = ($Ticket{FirstResponseInMin} * 100) / ($Ticket{FirstResponseInMin}+$Ticket{FirstResponseDiffInMin});
+                        }
+
+                        $Success = $DynamicFieldValueObject->ValueSet(
+                            FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
+                            ObjectID => $Param{TicketID},
+                            Value => [
+                                {
+                                    ValueText => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime)
+                                }
+                            ],
+                            UserID => 1
+                        );
+
+                    } else {
+
+                        $Success = $DynamicFieldValueObject->ValueDelete(
+                            FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
+                            ObjectID => $Param{TicketID},
+                            UserID             => 1,
+                        );
+
                     }
 
                     #Select the combo box PercentualScaleResponseTime value in relationship with
@@ -804,16 +839,7 @@ sub Run {
                     #    Value    => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime),
                     #    UserID   => 1,
                     #);
-                    $Success = $DynamicFieldValueObject->ValueSet(
-                        FieldID => $DynamicFieldPercentualScaleResponseTime->{ID},
-                        ObjectID => $Param{TicketID},
-                        Value => [
-                            {
-                                ValueText => $Self->ConvertPercentualResponseTimeScale(Value=>$percentResponseTime)
-                            }
-                        ],
-                        UserID => 1
-                    );
+                    
                     $TicketObject->EventHandler(
                         Event => 'TicketDynamicFieldUpdate_' . $DynamicFieldPercentualScaleResponseTime->{Name},
                         Data  => {
